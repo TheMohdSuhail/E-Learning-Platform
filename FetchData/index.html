@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject and Topic Demo</title>
+
+    <style>
+        /* Add your CSS styles here */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+}
+
+.slider-controls {
+    display: flex;
+    justify-content: space-between;
+    background-color: #f1f1f1;
+    padding: 10px;
+}
+
+.subject {
+    flex-grow: 1;
+}
+
+.sublist {
+    list-style: none;
+    padding: 0;
+}
+
+.sublist li {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.sidebar {
+    width: 20%;
+    background-color: #f1f1f1;
+    padding: 10px;
+}
+
+.topicList {
+    list-style: none;
+    padding: 0;
+}
+
+.container {
+    margin: 20px;
+}
+
+    </style>
+</head>
+
+<body>
+    <!-- Subject Slide bar -->
+    <div class="slider-controls">
+        <div class="subject">
+            <ul class="sublist" id="subjectList"></ul>
+        </div>
+    </div>
+
+    <!-- Topic Sidebar -->
+    <div class="sidebar">
+        <h2>Topics</h2>
+        <ul class="topicList" id="topicList"></ul>
+    </div>
+
+    <!-- Content Container -->
+    <div id="contentContainer" class="container"></div>
+
+    <script>
+        // Function to fetch and display subjects
+        function getSubjects() {
+            fetch('get_subjects.php')
+                .then(response => response.json())
+                .then(subjects => {
+                    const subjectList = document.getElementById('subjectList');
+                    subjects.forEach(subject => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<a href="#" onclick="getTopics(${subject.subject_id})">${subject.subject_name}</a>`;
+                        subjectList.appendChild(listItem);
+                    });
+                });
+        }
+
+        // Function to fetch and display topics for a subject
+        function getTopics(subjectId) {
+            fetch(`get_topics.php?subject_id=${subjectId}`)
+                .then(response => response.json())
+                .then(topics => {
+                    const topicList = document.getElementById('topicList');
+                    topicList.innerHTML = ''; // Clear previous topics
+
+                    topics.forEach(topic => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<a href="#" onclick="getContent(${topic.topic_id})">${topic.topic_name}</a>`;
+                        topicList.appendChild(listItem);
+                    });
+                });
+        }
+
+        // Function to fetch and display content for a topic
+        function getContent(topicId) {
+            fetch(`get_content.php?topic_id=${topicId}`)
+                .then(response => response.json())
+                .then(content => {
+                    const contentContainer = document.getElementById('contentContainer');
+                    contentContainer.innerHTML = ''; // Clear previous content
+
+                    content.forEach(item => {
+                        const heading = document.createElement('h2');
+                        heading.textContent = item.topic_name;
+
+                        const paragraph = document.createElement('p');
+                        paragraph.textContent = item.topic_content;
+
+                        contentContainer.appendChild(heading);
+                        contentContainer.appendChild(paragraph);
+                    });
+                });
+        }
+
+        // Initial call to fetch subjects when the page loads
+        getSubjects();
+    </script>
+</body>
+
+</html>
